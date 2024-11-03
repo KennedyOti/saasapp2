@@ -8,9 +8,6 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-
-
-
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
@@ -21,8 +18,16 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     // App Routes
-    Route::get('/app', [AppController::class, 'view']);
-    Route::post('/app', [AppController::class, 'view']);
+    Route::get('/app', [AppController::class, 'view'])->name('app.view');
+    Route::post('/app', [AppController::class, 'view'])->name('app.post');
+
+    // Import route for handling import requests
+    Route::post('/app/import', [AppController::class, 'import'])->name('app.import');
+
+    // Export routes for handling export requests
+    Route::get('/app/export/csv', [AppController::class, 'exportCsv'])->name('app.export.csv');
+    Route::get('/app/export/pdf', [AppController::class, 'exportPdf'])->name('app.export.pdf');
+    Route::get('/app/export/excel', [AppController::class, 'exportExcel'])->name('app.export.excel'); // Added Excel export route
 });
 
 require __DIR__ . '/auth.php';
