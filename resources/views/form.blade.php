@@ -56,8 +56,7 @@
     </div>
 
     <!-- Grid Output -->
-    <div>{!! $appmastergrid !!}</div>
-    <div>{!! $appdetailgrid !!}</div>
+    <div>{!! $formgrid !!}</div>
 </body>
 
 </html>

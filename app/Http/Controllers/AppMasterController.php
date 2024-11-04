@@ -8,83 +8,87 @@ use App\Gridphp;
 class AppMasterController extends Controller
 {
     /**
-     * Show the profile for a given user.
-     *
-     * @param  int  $id
-     * @return \Illuminate\View\View
+     * Display the apps and associated forms.
      */
     public function view()
     {
+        // Initialize the GridPHP instance
         $g = Gridphp::get();
 
-        $opt = array();
+        // Master Grid options for Apps
+        $opt = [];
         $opt["caption"] = "Apps";
         $opt["height"] = "150";
         $opt["hidefirst"] = true;
-
         $opt["detail_grid_id"] = "list2";
-        $opt["subgridparams"] = "client_id,gender,company";
-        $opt["hidefirst"] = true;
+        $opt["subgridparams"] = "user_id, app_name, description, status";
         $opt["multiselect"] = true;
-
         $opt["multiboxonly"] = true;
 
+        // Function to handle row selection for enabling/disabling import
         $opt["onSelectRow"] = "function(rid){
             var rowdata = $('#list1').getRowData(rid);
-            if (rowdata.client_id == 5)
+            if (rowdata.user_id == 5)
                 jQuery('#list2_pager #import_list2, #list2_toppager #import_list2').addClass('ui-state-disabled');
-            else	
+            else
                 jQuery('#list2_pager #import_list2, #list2_toppager #import_list2').removeClass('ui-state-disabled');
         }";
 
-        $opt["beforeGrid"] = "function(){ $.jgrid.nav.addtext = 'Add Master Record'; }";
+        $opt["beforeGrid"] = "function(){ $.jgrid.nav.addtext = 'Add New App'; }";
         $g->set_options($opt);
 
+        // Set the table to 'apps'
         $g->table = "apps";
 
-        $cols = array();
+        // Define columns for Apps
+        $cols = [];
 
-        $col = array();
-        $col["name"] = "name";
-        $col["title"] = "Name";
-        $col["stype"] = "select";
-        $col["searchoptions"]["value"] = $g->get_dropdown_values("SELECT distinct name as k, name as v FROM apps");
+        $col = [];
+        $col["name"] = "app_name";
+        $col["title"] = "App Name";
+        $col["editable"] = true;
+        $cols[] = $col;
+
+        $col = [];
+        $col["name"] = "description";
+        $col["title"] = "Description";
+        $col["editable"] = true;
+        $cols[] = $col;
+
+        $col = [];
+        $col["name"] = "status";
+        $col["title"] = "Status";
+        $col["editable"] = true;
+        $col["edittype"] = "select";
+        $col["editoptions"] = ["value" => "private:Private;public:Public"];
         $cols[] = $col;
 
         $g->set_columns($cols, true);
         $out_master = $g->render("list1");
 
+        // Detail Grid options for Forms
         $g = Gridphp::get();
 
-        $re = '/^([0-9]+[,]?)+$/';
-        preg_match_all($re, $_GET["rowid"], $matches);
-        if (count($matches[0]))
-            $id = $_GET["rowid"];
-        else
-            $id = intval($_GET["rowid"]);
-
-        $opt = array();
-
-        $opt["beforeGrid"] = "function(){ $.jgrid.nav.addtext = 'Add Detail Record'; }";
-        $opt["datatype"] = "local"; // stop loading detail grid at start
-        $opt["height"] = ""; // autofit height of subgrid
-        $opt["caption"] = "Invoice Data"; // caption of grid
-        $opt["multiselect"] = true; // allow you to multi-select through checkboxes
-        $opt["reloadedit"] = true; // reload after inline edit
+        $opt = [];
+        $opt["beforeGrid"] = "function(){ $.jgrid.nav.addtext = 'Add Form'; }";
+        $opt["datatype"] = "local"; // Stop loading detail grid at start
+        $opt["height"] = ""; // Autofit height of subgrid
+        $opt["caption"] = "Form Data"; // Caption of grid
+        $opt["multiselect"] = true;
+        $opt["reloadedit"] = true;
         $opt["hidefirst"] = true;
 
-        // fill detail grid add dialog with master grid id
         $opt["add_options"]["afterShowForm"] = 'function(frm) { 
-                                                                var selr = jQuery("#list1").jqGrid("getGridParam","selrow");  
-                                                                var n = jQuery("#list1").jqGrid("getCell",selr,"name");  
-                                                                jQuery("#app_id",frm).val( n ) 
-                                                            }';
+            var selr = jQuery("#list1").jqGrid("getGridParam","selrow");  
+            var n = jQuery("#list1").jqGrid("getCell",selr,"app_name");  
+            jQuery("#app_id",frm).val( n ) 
+        }';
 
-        // reload master after detail update
+        // Reload master after detail update
         $opt["onAfterSave"] = "function(){ jQuery('#list1').trigger('reloadGrid',[{current:true}]); }";
 
-        $opt["delete_options"]["afterSubmit"] = 'function(response) { if(response.status == 200)
-            {
+        $opt["delete_options"]["afterSubmit"] = 'function(response) { 
+            if(response.status == 200) {
                 jQuery("#list1").trigger("reloadGrid",[{current:true}]);
                 return [true,""];
             }
@@ -92,66 +96,67 @@ class AppMasterController extends Controller
 
         $g->set_options($opt);
 
+        // SQL Command to fetch Forms for a specific App
+        $g->select_command = "SELECT id, app_id, form_name, form_description, default_form_style FROM forms WHERE app_id = " . intval($_GET["rowid"]);
+
+        // Set the table to 'forms'
         $g->table = "forms";
 
-        $cols = array();
+        // Define columns for Forms
+        $cols = [];
 
-        $col = array();
-        $col["title"] = "Apps";
+        $col = [];
+        $col["title"] = "App ID";
         $col["name"] = "app_id";
-        $col["dbname"] = "i.app_id";
-        $col["width"] = "100";
-        $col["align"] = "left";
-        $col["search"] = true;
         $col["editable"] = true;
-        $col["editoptions"] = array("readonly"=>"readonly");
-        $col["show"] = array("list"=>false,"edit"=>true,"add"=>true,"view"=>false);
+        $col["editoptions"] = ["readonly" => "readonly"];
         $cols[] = $col;
-        
-        
-        $col = array();
-        $col["title"] = "Company"; // caption of column
-        $col["name"] = "company"; // field name, must be exactly same as with SQL prefix or db field
-        $col["width"] = "100";
-        $col["editable"] = false;
-        $col["show"] = array("list"=>true,"edit"=>true,"add"=>false,"view"=>false);
-        $cols[] = $col;
-        
-        $col = array();
-        $col["title"] = "forms";
-        $col["name"] = "note";
-        $col["width"] = "100";
-        $col["search"] = true;
+
+        $col = [];
+        $col["title"] = "Form Name";
+        $col["name"] = "form_name";
         $col["editable"] = true;
+        $cols[] = $col;
+
+        $col = [];
+        $col["title"] = "Form Description";
+        $col["name"] = "form_description";
+        $col["editable"] = true;
+        $cols[] = $col;
+
+        $col = [];
+        $col["title"] = "Default Form Style";
+        $col["name"] = "default_form_style";
         $col["edittype"] = "select";
-        $str = $g->get_dropdown_values("select distinct note as k, note as v from invheader");
-        $col["editoptions"] = array("value"=>":;".$str);
+        $col["editoptions"] = ["value" => "Table:Table;Form:Form"];
+        $col["editable"] = true;
         $cols[] = $col;
-        
-        $g->set_columns($cols,true);
-        
-        $e["on_insert"] = array("add_app", null, true);
-        $e["on_update"] = array("update_app", null, true);
+
+        $g->set_columns($cols, true);
+
+        // Define events for handling data insert and update
+        $e["on_insert"] = ["add_form", null, true];
+        $e["on_update"] = ["update_form", null, true];
         $g->set_events($e);
-        
-        function add_app(&$data)
+
+        // Function to handle form insertion
+        function add_form(&$data)
         {
-            $id = intval($_GET["rowid"]);
-            $data["params"]["app_id"] = $id;
-            $data["params"]["total"] = $data["params"]["amount"] + $data["params"]["tax"];
+            $data["params"]["app_id"] = intval($_GET["rowid"]);
         }
-        
-        function update_app(&$data)
+
+        // Function to handle form updates
+        function update_form(&$data)
         {
-            $id = intval($_GET["rowid"]);
-            $gd = $_GET["app_name"] . ' description';
-            $data["params"]["note"] = $gd;
-            $data["params"]["client_id"] = $id;
-            $data["params"]["total"] = $data["params"]["amount"] + $data["params"]["tax"];
+            $data["params"]["app_id"] = intval($_GET["rowid"]);
         }
+
+        // Generate output for detail grid
+        $out_detail = $g->render("list2");
 
         return view('appmaster', [
-            'grid' => $out_master
+            'appmastergrid' => $out_master,
+            'appdetailgrid' => $out_detail
         ]);
     }
 }
