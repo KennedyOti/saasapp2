@@ -23,13 +23,12 @@ class FormController extends Controller
         $col["width"] = "10";
         $cols[] = $col;
 
-        // User ID Column
+        // User ID Column - now editable for manual input
         $col = array();
         $col["title"] = "User ID";
         $col["name"] = "user_id";
         $col["width"] = "50";
-        $col["editable"] = true;
-        $col["editoptions"] = array("readonly" => "readonly"); // assuming user_id is set programmatically, prevent manual edit
+        $col["editable"] = true;  // Set as editable to allow manual entry
         $cols[] = $col;
 
         // App ID Column
@@ -107,10 +106,6 @@ class FormController extends Controller
         // Apply the configured columns to the grid
         $g->set_columns($cols);
 
-        // Event to set the user_id during insert
-        $e["on_insert"] = array("set_user_id", null, true);
-        $g->set_events($e);
-
         // Render the grid
         $out = $g->render("list2");
 
@@ -119,13 +114,4 @@ class FormController extends Controller
             'formgrid' => $out
         ]);
     }
-
-    // Method to set `user_id` before inserting a new record
-    public function setUserId(&$data)
-    {
-        // Set user_id based on the currently authenticated user
-        $data["params"]["user_id"] = auth()->id(); // or provide a specific user ID as needed
-    }
 }
-
-
