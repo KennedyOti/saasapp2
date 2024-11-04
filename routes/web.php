@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AppController;
+use App\Http\Controllers\AppMasterController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -20,6 +21,10 @@ Route::middleware('auth')->group(function () {
     // App Routes
     Route::get('/app', [AppController::class, 'view'])->name('app.view');
     Route::post('/app', [AppController::class, 'view'])->name('app.post');
+
+    // App Master Routes
+    Route::get('/appmaster', [AppMasterController::class, 'view'])->name('appmaster.view');
+    Route::post('/appmaster', [AppMasterController::class, 'view'])->name('appmaster.post');    
 
     // Import route for handling import requests
     Route::post('/app/import', [AppController::class, 'import'])->name('app.import');
