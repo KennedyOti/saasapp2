@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Gridphp;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Response;
 
 class AppController extends Controller
 {
@@ -18,33 +17,36 @@ class AppController extends Controller
         $g = Gridphp::get();
 
         // Configure grid options
-        $opt = [];
-        $opt["caption"] = "App";
-        $opt["height"] = "400";
-        $opt["hidefirst"] = true;
-
-        // Enable export functionality
-        $opt["export"] = [
-            "filename" => "AppExport",
-            "heading" => "App Data",
-            "orientation" => "landscape",
-            "paper" => "a4",
-            "sheetname" => "App Data",
-            "range" => "filtered", // export filtered data or all data
-        ];
-
-        // Enable import functionality
-        $csrfToken = csrf_token(); // Get CSRF token
-        $opt["import"] = [
-            "allowreplace" => true,
-            "hidefields" => ["client_id"],
-            "url" => url('app/import') . '?_token=' . $csrfToken
+        $opt = [
+            "caption" => "App",
+            "height" => "400",
+            "hidefirst" => true,
+            "export" => [
+                "filename" => "AppExport",
+                "heading" => "App Data",
+                "orientation" => "landscape",
+                "paper" => "a4",
+                "sheetname" => "App Data",
+                "range" => "filtered",
+            ],
+            "import" => [
+                "allowreplace" => true,
+                "hidefields" => ["client_id"],
+                "url" => url('app/import') . '?_token=' . csrf_token(),
+            ],
         ];
 
         $g->set_options($opt);
-
-        // Specify the database table
         $g->table = "apps";
+
+        // Define the column model for the grid
+        $colModel = [
+            ["name" => "id", "title" => "ID"],
+            ["name" => "name", "title" => "Name"],
+            ["name" => "created_at", "title" => "Created At"],
+            ["name" => "updated_at", "title" => "Updated At"],
+            // Add more columns as necessary
+        ];
 
         // Add action settings to show export and import options
         $g->set_actions([
@@ -58,13 +60,14 @@ class AppController extends Controller
             "export_html" => true,    // Optionally enable HTML export
             "import" => true,
             "autofilter" => true,
-            "showhidecolumns" => true
+            "showhidecolumns" => true,
         ]);
 
         $out = $g->render("list1");
 
         return view('app', [
-            'grid' => $out
+            'grid' => $out,
+            'colModel' => $colModel, // Pass columns to the view
         ]);
     }
 
@@ -108,7 +111,7 @@ class AppController extends Controller
     protected function exportCsv()
     {
         // Logic to fetch data and generate CSV file
-        // ...
+        $csvData = ''; // Fetch or generate CSV data
 
         return response()->stream(function () use ($csvData) {
             echo $csvData;
@@ -124,7 +127,7 @@ class AppController extends Controller
     protected function exportPdf()
     {
         // Logic to fetch data and generate PDF file
-        // ...
+        $pdfData = ''; // Fetch or generate PDF data
 
         return response()->stream(function () use ($pdfData) {
             echo $pdfData;
@@ -140,7 +143,7 @@ class AppController extends Controller
     protected function exportExcel()
     {
         // Logic to fetch data and generate Excel file
-        // ...
+        $excelData = ''; // Fetch or generate Excel data
 
         return response()->stream(function () use ($excelData) {
             echo $excelData;
