@@ -14,23 +14,22 @@ Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
+// App Routes
+Route::get('/app', [AppController::class, 'view'])->name('app.view');
+Route::post('/app', [AppController::class, 'view'])->name('app.post');
+
+// App Master Routes
+Route::get('/appmaster', [AppMasterController::class, 'view'])->name('appmaster.view');
+Route::post('/appmaster', [AppMasterController::class, 'view'])->name('appmaster.post');
+
+// Form Routes
+Route::get('/form', [FormController::class, 'view'])->name('form.view');
+Route::post('/form', [FormController::class, 'view'])->name('form.post');
+
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-
-    // App Routes
-    Route::get('/app', [AppController::class, 'view'])->name('app.view');
-    Route::post('/app', [AppController::class, 'view'])->name('app.post');
-
-    // App Master Routes
-    Route::get('/appmaster', [AppMasterController::class, 'view'])->name('appmaster.view');
-    Route::post('/appmaster', [AppMasterController::class, 'view'])->name('appmaster.post');    
-
-    // Form Routes
-    Route::get('/form', [FormController::class, 'view'])->name('form.view');
-    Route::post('/form', [FormController::class, 'view'])->name('form.post'); 
-
     // Import route for handling import requests
     Route::post('/app/import', [AppController::class, 'import'])->name('app.import');
 
