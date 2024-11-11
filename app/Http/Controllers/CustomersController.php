@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Gridphp;
+use App\Models\User; // Make sure to import the User model
 use Illuminate\Http\Request;
+use App\Gridphp;
 
-class AppController extends Controller
+class CustomersController extends Controller
 {
-    /**
+     /**
      * Show the profile for a given user.
      *
      * @return \Illuminate\View\View
@@ -18,26 +19,26 @@ class AppController extends Controller
 
         // Configure grid options
         $opt = [
-            "caption" => "App",
+            "caption" => "Customers",
             "height" => "400",
             "hidefirst" => true,
             "export" => [
-                "filename" => "AppExport",
-                "heading" => "App Data",
+                "filename" => "CustomersExport",
+                "heading" => "Customers Data",
                 "orientation" => "landscape",
                 "paper" => "a4",
-                "sheetname" => "App Data",
+                "sheetname" => "Customers Data",
                 "range" => "filtered",
             ],
             "import" => [
                 "allowreplace" => true,
-                "hidefields" => ["client_id"],
-                "url" => url('app/import') . '?_token=' . csrf_token(),
+                "hidefields" => ["customers_id"],
+                "url" => url('Customers/import') . '?_token=' . csrf_token(),
             ],
         ];
 
         $g->set_options($opt);
-        $g->table = "apps";
+        $g->table = "customers";
 
         // Define the column model for the grid
         $colModel = [
@@ -65,8 +66,8 @@ class AppController extends Controller
 
         $out = $g->render("list1");
 
-        return view('app', [
-            'grid' => $out,
+        return view('Customers', [
+            'customergrid' => $out,
             'colModel' => $colModel, // Pass columns to the view
         ]);
     }
@@ -117,7 +118,7 @@ class AppController extends Controller
             echo $csvData;
         }, 200, [
             'Content-Type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename="app_data.csv"',
+            'Content-Disposition' => 'attachment; filename="customers_data.csv"',
         ]);
     }
 
@@ -133,7 +134,7 @@ class AppController extends Controller
             echo $pdfData;
         }, 200, [
             'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'attachment; filename="app_data.pdf"',
+            'Content-Disposition' => 'attachment; filename="Customers_data.pdf"',
         ]);
     }
 
@@ -149,7 +150,7 @@ class AppController extends Controller
             echo $excelData;
         }, 200, [
             'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            'Content-Disposition' => 'attachment; filename="app_data.xlsx"',
+            'Content-Disposition' => 'attachment; filename="customers_data.xlsx"',
         ]);
     }
 }

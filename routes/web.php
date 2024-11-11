@@ -1,12 +1,12 @@
 <?php
 
-use App\Http\Controllers\AppController;
-use App\Http\Controllers\AppMasterController;
+use App\Http\Controllers\ClientMasterController;
+use App\Http\Controllers\ClientsController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\FormController;
+use App\Http\Controllers\CustomersController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AppSubgridController;
-use App\Http\Controllers\SubgridDetailController;
+use App\Http\Controllers\EmployeesController;
+use App\Http\Controllers\InvoicesController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -16,50 +16,32 @@ Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-// App Routes
-Route::get('/app', [AppController::class, 'view'])->name('app.view');
-Route::post('/app', [AppController::class, 'view'])->name('app.post');
-
-// App Master Routes
-Route::get('/appmaster', [AppMasterController::class, 'view'])->name('appmaster.view');
-Route::post('/appmaster', [AppMasterController::class, 'view'])->name('appmaster.post');
-
 // Form Routes
-Route::get('/form', [FormController::class, 'view'])->name('form.view');
-Route::post('/form', [FormController::class, 'view'])->name('form.post');
+Route::get('/form', [EmployeesController::class, 'view'])->name('form.view');
+Route::post('/form', [EmployeesController::class, 'view'])->name('form.post');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // App Routes
-    Route::get('/app', [AppController::class, 'view'])->name('app.view');
-    Route::post('/app', [AppController::class, 'view'])->name('app.post');
+    Route::get('/employees', [EmployeesController::class, 'view'])->name('employees.view');
+    Route::post('/employees', [EmployeesController::class, 'view'])->name('employees.post');
 
-    // App Master Routes
-    Route::get('/appmaster', [AppMasterController::class, 'view'])->name('appmaster.view');
-    Route::post('/appmaster', [AppMasterController::class, 'view'])->name('appmaster.post');
+    
+    Route::get('/clientMaster', [ClientMasterController::class, 'view'])->name('clientMaster.view');
+    Route::post('/clientMaster', [ClientMasterController::class, 'view'])->name('clientMaster.post');
 
-    // App Subgrid
-    Route::get('/subgrid', [AppSubgridController::class, 'view'])->name('subgrid.view');
-    Route::post('/subgrid', [AppSubgridController::class, 'view'])->name('subgrid.post');
-
-    // App Subgriddetail
-    Route::get('/subdetail', [SubgridDetailController::class, 'view'])->name('subgrid.view');
-    Route::post('/subdetail', [SubgridDetailController::class, 'view'])->name('subgrid.post');
-
-    // Form Routes
-    Route::get('/form', [FormController::class, 'view'])->name('form.view');
-    Route::post('/form', [FormController::class, 'view'])->name('form.post');
+    Route::get('/clients', [ClientsController::class, 'view'])->name('clients.view');
+    Route::post('/clients', [ClientsController::class, 'view'])->name('clients.post');
 
     // Import route for handling import requests
-    Route::post('/app/import', [AppController::class, 'import'])->name('app.import');
+    Route::post('/app/import', [ClientsController::class, 'import'])->name('app.import');
 
     // Export routes for handling export requests
-    Route::get('/app/export/csv', [AppController::class, 'exportCsv'])->name('app.export.csv');
-    Route::get('/app/export/pdf', [AppController::class, 'exportPdf'])->name('app.export.pdf');
-    Route::get('/app/export/excel', [AppController::class, 'exportExcel'])->name('app.export.excel'); // Added Excel export route
+    Route::get('/app/export/csv', [ClientsController::class, 'exportCsv'])->name('clients.export.csv');
+    Route::get('/app/export/pdf', [ClientsController::class, 'exportPdf'])->name('clients.export.pdf');
+    Route::get('/app/export/excel', [ClientsController::class, 'exportExcel'])->name('clients.export.excel'); // Added Excel export route
 });
 
 require __DIR__ . '/auth.php';
